@@ -1,0 +1,36 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Medical Chatbot</title>
+    <style>
+        body { font-family: Arial; margin: 2rem; }
+        #chat { border: 1px solid #ccc; padding: 1rem; height: 400px; overflow-y: scroll; }
+        #input { width: 80%; }
+        button { padding: 0.5rem; }
+    </style>
+</head>
+<body>
+    <h1>Medical Chatbot</h1>
+    <div id="chat"></div>
+    <input type="text" id="input" placeholder="Type your message"/>
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const chatDiv = document.getElementById("chat");
+        async function sendMessage() {
+            const msg = document.getElementById("input").value;
+            chatDiv.innerHTML += `<p><b>You:</b> ${msg}</p>`;
+            const res = await fetch("https://YOUR_RENDER_URL/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: msg })
+            });
+            const data = await res.json();
+            chatDiv.innerHTML += `<p><b>Bot:</b> ${data.response}</p>`;
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+            document.getElementById("input").value = "";
+        }
+    </script>
+</body>
+</html>

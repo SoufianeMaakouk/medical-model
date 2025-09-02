@@ -1,144 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Medical Chatbot</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical QA Bot</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f5f7fa;
-      margin: 0;
-      padding: 0;
+      background: #f9fafb;
       display: flex;
-      flex-direction: column;
-      height: 100vh;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
     }
-
-    h1 {
+    .container {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 400px;
+      max-width: 90%;
+    }
+    h2 {
+      margin-top: 0;
       text-align: center;
-      padding: 1rem;
-      background: #0077b6;
-      color: white;
-      margin: 0;
+      color: #2563eb;
     }
-
-    #chat {
-      flex: 1;
-      padding: 1rem;
-      overflow-y: auto;
-      background: #ffffff;
-      border-top: 1px solid #ccc;
-      border-bottom: 1px solid #ccc;
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 16px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
     }
-
-    .message {
-      margin: 0.5rem 0;
-      padding: 0.75rem;
-      border-radius: 10px;
-      max-width: 70%;
-      line-height: 1.4;
-    }
-
-    .user {
-      background: #0077b6;
-      color: white;
-      margin-left: auto;
-      text-align: right;
-    }
-
-    .bot {
-      background: #e9ecef;
-      color: #333;
-      margin-right: auto;
-      text-align: left;
-    }
-
-    #input-area {
-      display: flex;
-      padding: 1rem;
-      background: #f1f3f5;
-      border-top: 1px solid #ccc;
-    }
-
-    #input {
-      flex: 1;
-      padding: 0.75rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
-
     button {
-      margin-left: 0.5rem;
-      padding: 0.75rem 1.25rem;
-      background: #0077b6;
-      border: none;
-      border-radius: 8px;
+      background: #2563eb;
       color: white;
-      font-size: 1rem;
+      border: none;
       cursor: pointer;
     }
-
     button:hover {
-      background: #005f87;
+      background: #1e40af;
+    }
+    .response {
+      margin-top: 15px;
+      padding: 10px;
+      background: #f3f4f6;
+      border-radius: 6px;
+      min-height: 40px;
+      white-space: pre-wrap;
     }
   </style>
 </head>
 <body>
-  <h1>Medical Chatbot</h1>
-
-  <div id="chat"></div>
-
-  <div id="input-area">
-    <input type="text" id="input" placeholder="Type your message..."/>
-    <button onclick="sendMessage()">Send</button>
+  <div class="container">
+    <h2>🩺 Medical QA Bot</h2>
+    <input type="text" id="question" placeholder="Ask a medical question..." />
+    <button onclick="askBot()">Ask</button>
+    <div class="response" id="response">Response will appear here...</div>
   </div>
 
   <script>
-    const chatDiv = document.getElementById("chat");
-    const inputField = document.getElementById("input");
+    async function askBot() {
+      const question = document.getElementById("question").value;
+      const responseDiv = document.getElementById("response");
 
-    async function sendMessage() {
-      const msg = inputField.value.trim();
-      if (!msg) return;
+      if (!question.trim()) {
+        responseDiv.textContent = "⚠️ Please enter a question.";
+        return;
+      }
 
-      // Show user message
-      appendMessage(msg, "user");
+      responseDiv.textContent = "⏳ Thinking...";
 
-      // Call backend
       try {
-        const res = await fetch("https://medical-model-backend.onrender.com/chat", {
+        const res = await fetch("https://medical-qa-bot.onrender.com/ask", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ message: msg })
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ question })
         });
 
-        if (!res.ok) throw new Error("Network error");
+        if (!res.ok) {
+          throw new Error(`API error: ${res.status}`);
+        }
+
         const data = await res.json();
-
-        // Show bot response
-        appendMessage(data.response, "bot");
+        responseDiv.textContent = JSON.stringify(data.answer, null, 2);
       } catch (err) {
-        appendMessage("⚠️ Error: Could not reach backend.", "bot");
+        console.error(err);
+        responseDiv.textContent = "❌ Error: Could not fetch response.";
       }
-
-      inputField.value = "";
     }
-
-    function appendMessage(text, sender) {
-      const p = document.createElement("div");
-      p.className = `message ${sender}`;
-      p.innerText = text;
-      chatDiv.appendChild(p);
-      chatDiv.scrollTop = chatDiv.scrollHeight;
-    }
-
-    // Enter key to send
-    inputField.addEventListener("keypress", function(e) {
-      if (e.key === "Enter") {
-        sendMessage();
-      }
-    });
   </script>
 </body>
 </html>

@@ -18,7 +18,7 @@
   <div class="container">
     <h2>🩺 Medical QA Bot</h2>
     <input type="text" id="question" placeholder="Ask a medical question..." />
-    <textarea id="context" rows="5" placeholder="Enter medical context here..."></textarea>
+    <textarea id="context" rows="5" placeholder="Enter medical context here (optional)..."></textarea>
     <button id="askBtn" onclick="askBot()">Ask</button>
     <div class="response" id="response">Response will appear here...</div>
   </div>
@@ -34,8 +34,8 @@
       const question = questionInput.value.trim();
       const context = contextInput.value.trim();
 
-      if (!question || !context) {
-        responseDiv.textContent = "⚠️ Please enter both a question and a context.";
+      if (!question) {
+        responseDiv.textContent = "⚠️ Please enter a question.";
         return;
       }
 
@@ -57,7 +57,7 @@
           responseDiv.textContent = `❌ Error: ${data.error || 'Unknown error'}`;
         } else {
           responseDiv.textContent = data.answer 
-            ? `Answer: ${data.answer}`
+            ? `Answer: ${data.answer}` 
             : JSON.stringify(data, null, 2);
         }
       } catch (err) {
